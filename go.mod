@@ -1,3 +1,3 @@
-module github.com/kev1n80/go-diskqueue
+module github.com/moredure/go-diskqueue
 
 go 1.13
