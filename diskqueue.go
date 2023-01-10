@@ -931,7 +931,6 @@ func (d *diskQueue) moveForward() {
 }
 
 func (d *diskQueue) handleReadError() {
-	println("handle read error")
 	// jump to the next read file and rename the current (bad) file
 	if d.readFileNum == d.writeFileNum {
 		// if you can't properly read from the current write file it's safe to

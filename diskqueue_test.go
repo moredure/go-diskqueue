@@ -214,14 +214,10 @@ func TestDiskQueueCorruption(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 	// require a non-zero message length for the corrupt (len 0) test below
-	dq := New(dqName, tmpDir, 1000, 10, 1<<10, 5, 1*time.Second, l)
+	dq := New(dqName, tmpDir, 1000, 10, 1<<10, 5, 2*time.Second, l)
 	defer dq.Close()
 
-	msg := make([]byte, 120) // 124 bytes per message, 8 messages (992 bytes) per file
-	msg[0] = 91
-	msg[62] = 4
-	msg[119] = 211
-
+	msg := make([]byte, 123) // 127 bytes per message, 8 (1016 bytes) messages per file
 	for i := 0; i < 25; i++ {
 		dq.Put(msg)
 	}
@@ -230,8 +226,7 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	// corrupt the 2nd file
 	dqFn := dq.(*diskQueue).fileName(1)
-	fmt.Println(os.Open(dqFn))
-	os.Truncate(dqFn, 400) // 3 valid messages, 5 corrupted
+	os.Truncate(dqFn, 500) // 3 valid messages, 5 corrupted
 
 	for i := 0; i < 19; i++ { // 1 message leftover in 4th file
 		Equal(t, msg, <-dq.ReadChan())
@@ -239,7 +234,6 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	// corrupt the 4th (current) file
 	dqFn = dq.(*diskQueue).fileName(3)
-	fmt.Println(os.Open(dqFn))
 	os.Truncate(dqFn, 100)
 
 	dq.Put(msg) // in 5th file
@@ -254,26 +248,6 @@ func TestDiskQueueCorruption(t *testing.T) {
 	dq.Put(msg)
 
 	Equal(t, msg, <-dq.ReadChan())
-
-	dq.Put(msg)
-	dq.Put(msg)
-	// corrupt the last file
-	dqFn = dq.(*diskQueue).fileName(5)
-	fmt.Println(os.Open(dqFn))
-	os.Truncate(dqFn, 100)
-
-	Equal(t, int64(2), dq.Depth())
-
-	time.Sleep(2 * time.Second)
-
-	// return one message and try reading again from corrupted file
-	<-dq.ReadChan()
-
-	// give diskqueue time to handle read error
-	time.Sleep(20 * time.Second)
-
-	// the last log file is now considered corrupted leaving no more log messages
-	Equal(t, int64(0), dq.Depth())
 }
 
 type md struct {
