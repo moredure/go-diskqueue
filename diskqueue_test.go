@@ -248,8 +248,6 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	dq.Put(msg) // in 5th file
 
-	dq.Depth()
-
 	_, err = os.Stat(dq.(*diskQueue).fileName(4))
 	if err != nil {
 		panic(err)
@@ -270,6 +268,9 @@ func TestDiskQueueCorruption(t *testing.T) {
 	dq.Put(msg)
 
 	Equal(t, msg, <-dq.ReadChan())
+
+	time.Sleep(5 * time.Second)
+
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
 	if badFilesCount != 3 {
 		panic("fail")
