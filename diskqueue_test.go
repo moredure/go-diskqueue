@@ -248,6 +248,8 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	dq.Put(msg) // in 5th file
 
+	dq.Depth()
+
 	_, err = os.Stat(dq.(*diskQueue).fileName(4))
 	if err != nil {
 		panic(err)
