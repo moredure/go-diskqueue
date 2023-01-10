@@ -214,7 +214,7 @@ func TestDiskQueueCorruption(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 	// require a non-zero message length for the corrupt (len 0) test below
-	dq := New(dqName, tmpDir, 1000, 10, 1<<10, 5, 2*time.Second, l)
+	dq := New(dqName, tmpDir, 1000, 10, 1<<10, 1, 2*time.Second, l)
 	defer dq.Close()
 
 	msg := make([]byte, 123) // 127 bytes per message, 8 (1016 bytes) messages per file
