@@ -931,6 +931,7 @@ func (d *diskQueue) moveForward() {
 }
 
 func (d *diskQueue) handleReadError() {
+	println("handle read error")
 	// jump to the next read file and rename the current (bad) file
 	if d.readFileNum == d.writeFileNum {
 		// if you can't properly read from the current write file it's safe to
@@ -1024,6 +1025,7 @@ func (d *diskQueue) ioLoop() {
 		// the Go channel spec dictates that nil channel operations (read or write)
 		// in a select are skipped, we set r to d.readChan only when there is data to read
 		case r <- dataRead:
+
 			count++
 			// moveForward sets needSync flag if a file is removed
 			d.moveForward()
