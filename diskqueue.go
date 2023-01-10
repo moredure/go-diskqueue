@@ -1024,6 +1024,7 @@ func (d *diskQueue) ioLoop() {
 		// the Go channel spec dictates that nil channel operations (read or write)
 		// in a select are skipped, we set r to d.readChan only when there is data to read
 		case r <- dataRead:
+
 			count++
 			// moveForward sets needSync flag if a file is removed
 			d.moveForward()

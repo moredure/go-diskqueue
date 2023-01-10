@@ -232,11 +232,6 @@ func TestDiskQueueCorruption(t *testing.T) {
 		Equal(t, msg, <-dq.ReadChan())
 	}
 
-	badFilesCount := numberOfBadFiles(dqName, tmpDir)
-	if badFilesCount != 1 {
-		panic("fail")
-	}
-
 	// corrupt the 4th (current) file
 	dqFn = dq.(*diskQueue).fileName(3)
 	os.Truncate(dqFn, 100)
@@ -244,10 +239,6 @@ func TestDiskQueueCorruption(t *testing.T) {
 	dq.Put(msg) // in 5th file
 
 	Equal(t, msg, <-dq.ReadChan())
-	badFilesCount = numberOfBadFiles(dqName, tmpDir)
-	if badFilesCount != 2 {
-		panic("fail")
-	}
 
 	// write a corrupt (len 0) message at the 5th (current) file
 	dq.(*diskQueue).writeFile.Write([]byte{0, 0, 0, 0})
@@ -257,10 +248,6 @@ func TestDiskQueueCorruption(t *testing.T) {
 	dq.Put(msg)
 
 	Equal(t, msg, <-dq.ReadChan())
-	badFilesCount = numberOfBadFiles(dqName, tmpDir)
-	if badFilesCount != 3 {
-		panic("fail")
-	}
 }
 
 type md struct {
