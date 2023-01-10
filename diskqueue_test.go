@@ -248,6 +248,8 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	dq.Put(msg) // in 5th file
 
+	dq.Depth()
+
 	time.Sleep(5 * time.Second)
 
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
