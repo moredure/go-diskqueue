@@ -239,17 +239,23 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	// corrupt the 4th (current) file
 	dqFn = dq.(*diskQueue).fileName(3)
+	_, err = os.Stat(dqFn)
+	if err != nil {
+		panic(err)
+	}
 	os.Truncate(dqFn, 100)
-
-	dq.Depth()
+	_, err = os.Stat(dqFn)
+	if err != nil {
+		panic(err)
+	}
 
 	dq.Put(msg) // in 5th file
-
-	dq.Depth()
+	dq.Put(msg) // in 5th file
 
 	Equal(t, msg, <-dq.ReadChan())
+	Equal(t, msg, <-dq.ReadChan())
 
-	dq.Depth()
+	time.Sleep(1 * time.Second)
 
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
 	if badFilesCount != 2 {
